@@ -1,6 +1,6 @@
 import { mergeSort } from "./mergeSort.js";
 import { HashSet } from "./hashSet.js";
-
+import { prettyPrint } from "./prettyPrint.js";
 function Node(value, left = null, right = null) {
   return {
     left,
@@ -116,31 +116,28 @@ function Tree(array) {
     queue = [node],
     traverse = [node.value]
   ) {
+    if (typeof callback !== "function") {
+      console.log("call back is not a function!");
+      return;
+    }
     if (queue.length === 0) return;
 
-    // console.log(queue);
     const dequeued = queue[0];
     queue.shift();
     traverse.shift();
-    // console.log(traverse);
-    // console.log(queue);
-    // console.log(dequeued);
+
     dequeued.value = callback(dequeued.value);
 
     if (dequeued.left !== null) {
       const left = dequeued.left;
       queue.push(left);
       traverse.push(left.value);
-      // traverse.push(callback(left.value));
     }
     if (dequeued.right !== null) {
       const right = dequeued.right;
       queue.push(right);
       traverse.push(right.value);
-      // traverse.push(callback(right.value));
     }
-    // console.log(queue);
-    // console.log(traverse);
 
     levelOrder(callback, queue, traverse);
     /**
@@ -150,27 +147,68 @@ function Tree(array) {
      */
   }
 
+  function inOrder(
+    callback = (value) => {
+      console.log(value);
+    },
+    currentNode = node,
+    traverse = []
+  ) {
+    if (typeof callback !== "function") return;
+    if (currentNode === null) return;
+
+    inOrder(callback, currentNode.left, traverse);
+    callback(currentNode.value);
+    traverse.push(currentNode.value);
+    inOrder(callback, currentNode.right, traverse);
+    // console.log(traverse);
+  }
+
+  function preOrder(
+    callback = (value) => {
+      console.log(value);
+    },
+    currentNode = node,
+    traverse = []
+  ) {
+    if (typeof callback !== "function") return;
+    if (currentNode === null) return;
+
+    callback(currentNode.value);
+    traverse.push(currentNode.value);
+    preOrder(callback, currentNode.left, traverse);
+    preOrder(callback, currentNode.right, traverse);
+    // console.log(traverse);
+  }
+
+  function postOrder(
+    callback = (value) => {
+      console.log(value);
+    },
+    currentNode = node,
+    traverse = []
+  ) {
+    if (typeof callback !== "function") return;
+    if (currentNode === null) return;
+
+    postOrder(callback, currentNode.left, traverse);
+    postOrder(callback, currentNode.right, traverse);
+    callback(currentNode.value);
+    traverse.push(currentNode.value);
+    // console.log(traverse);
+  }
+
   return {
     node,
     insert,
     deleteItem,
     find,
     levelOrder,
+    inOrder,
+    preOrder,
+    postOrder,
   };
 }
-
-const prettyPrint = (node, prefix = "", isLeft = true) => {
-  if (node === null) {
-    return;
-  }
-  if (node.right !== null) {
-    prettyPrint(node.right, `${prefix}${isLeft ? "│   " : "    "}`, false);
-  }
-  console.log(`${prefix}${isLeft ? "└── " : "┌── "}${node.value}`);
-  if (node.left !== null) {
-    prettyPrint(node.left, `${prefix}${isLeft ? "    " : "│   "}`, true);
-  }
-};
 
 const myNode = mergeSort([0, 3, 2, 1, 1, 2, 3, 4, 7, 8, 9, 10]);
 const myTree = Tree(myNode);
@@ -183,8 +221,9 @@ prettyPrint(myTree.node);
 // myTree.deleteItem(9);
 // myTree.deleteItem(4);
 // console.log(myTree.find(10));
-myTree.levelOrder();
+// myTree.levelOrder();
 prettyPrint(myTree.node);
+myTree.postOrder();
 
 /**
 delete 30:
