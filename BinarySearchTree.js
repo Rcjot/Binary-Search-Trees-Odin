@@ -240,8 +240,12 @@ export function Tree(array) {
       }
     }
     levelOrder(callback);
-    if (balancedArr.includes(false)) return false;
+    if (balancedArr.includes(false)) {
+      console.log("tree is not balanced");
+      return false;
+    }
 
+    console.log("tree is balanced");
     return true;
 
     // console.log(absDiff);
@@ -255,8 +259,8 @@ export function Tree(array) {
       rebalanceArr.push(node.value);
     }
     inOrder(callback);
-    this.node = buildTree(rebalanceArr);
-    prettyPrint(this.node);
+    node = buildTree(rebalanceArr);
+    prettyPrint(node);
   }
 
   return {
