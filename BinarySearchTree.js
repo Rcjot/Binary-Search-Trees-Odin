@@ -9,12 +9,12 @@ function Node(value, left = null, right = null) {
   };
 }
 
-function Tree(array) {
+export function Tree(array) {
   const myHash = HashSet();
 
-  const myArray = myHash.sortPurify(array);
-  console.log(myArray);
-  const node = buildTree(myArray);
+  const myArray = mergeSort(myHash.sortPurify(array));
+  // console.log(myArray);
+  let node = buildTree(myArray);
 
   function buildTree(arr) {
     const myNode = Node();
@@ -72,10 +72,11 @@ function Tree(array) {
         break;
       }
     }
-
+    // console.log("a" + currentNode.value);
+    // console.log(parent.value);
     if (currentNode.left === null || currentNode.right === null) {
       if (currentNode.value > parent.value) {
-        parent.right = currentNode.left === null ? null : currentNode.left;
+        parent.right = currentNode.right === null ? null : currentNode.right;
       } else {
         parent.left = currentNode.left === null ? null : currentNode.left;
       }
@@ -92,6 +93,10 @@ function Tree(array) {
   }
 
   function find(value) {
+    // if (myArray.includes(value) === false) {
+    //   console.log("no such value");
+    //   return;
+    // }
     if (value === null) return;
     let currentNode = node;
     let parent = null;
@@ -171,7 +176,7 @@ function Tree(array) {
     postOrder(callback, currentNode.right, traverse);
     callback(currentNode);
     traverse.push(currentNode.value);
-    console.log(traverse);
+    // console.log(traverse);
   }
 
   function height(value = node.value) {
@@ -199,20 +204,60 @@ function Tree(array) {
     return leftHeight >= rightHeight ? leftHeight : rightHeight;
   }
 
-  function depth(value = node.value) {
-    return height(node.value) - height(value);
+  function depth(value = node.value, currentNode = node) {
+    console.log(currentNode.value);
+    let depthValue = 0;
+    // console.log("b" + value);
+    if (currentNode.value > value) {
+      currentNode = currentNode.left;
+    } else if (currentNode.value < value) {
+      currentNode = currentNode.right;
+    } else {
+      console.log("equal?");
+      return 0;
+    }
+
+    // console.log("a" + currentNode.value);
+    return (depthValue = depth(value, currentNode) + 1);
   }
 
   function isBalanced() {
-    const Diff = height(node.left.value) - height(node.right.value);
-    const absDiff = Diff < 0 ? Diff * -1 : Diff;
-    console.log(absDiff);
-    if (absDiff <= 1) return true;
+    const balancedArr = [];
 
-    return false;
+    function callback(node) {
+      const left = node.left === null ? 0 : 1 + height(node.left.value);
+      const right = node.right === null ? 0 : 1 + height(node.right.value);
+      const Diff = left - right;
+      const absDiff = Diff < 0 ? Diff * -1 : Diff;
+      // console.log(
+      //   `node value: ${node.value}, left: ${left}, right: ${right}, Diff: ${Diff}, absDiff: ${absDiff} `
+      // );
+
+      if (absDiff <= 1) {
+        balancedArr.push(true);
+      } else {
+        balancedArr.push(false);
+      }
+    }
+    levelOrder(callback);
+    if (balancedArr.includes(false)) return false;
+
+    return true;
+
+    // console.log(absDiff);
+
+    // return false;
   }
 
-  function rebalance() {}
+  function rebalance() {
+    const rebalanceArr = [];
+    function callback(node) {
+      rebalanceArr.push(node.value);
+    }
+    inOrder(callback);
+    this.node = buildTree(rebalanceArr);
+    prettyPrint(this.node);
+  }
 
   return {
     node,
@@ -226,28 +271,9 @@ function Tree(array) {
     height,
     depth,
     isBalanced,
+    rebalance,
   };
 }
-
-const myNode = mergeSort([0, 3, 2, 1, 1, 2, 3, 4, 7, 8, 9, 10]);
-const myTree = Tree(myNode);
-
-myTree.insert(5);
-myTree.insert(11);
-prettyPrint(myTree.node);
-// myTree.deleteItem(2);
-// myTree.deleteItem(1);
-// myTree.deleteItem(9);
-// myTree.deleteItem(4);
-// console.log(myTree.find(10));
-// myTree.levelOrder();
-prettyPrint(myTree.node);
-// myTree.levelOrder(() => {
-//   console.log("");
-// });
-console.log(myTree.height(4));
-console.log(myTree.depth(5));
-console.log(myTree.isBalanced());
 
 /**
 delete 30:
