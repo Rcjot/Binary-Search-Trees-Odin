@@ -109,13 +109,7 @@ function Tree(array) {
     return currentNode;
   }
 
-  function levelOrder(
-    callback = (num) => {
-      return num * 2;
-    },
-    queue = [node],
-    traverse = [node.value]
-  ) {
+  function levelOrder(callback, queue = [node], traverse = [node.value]) {
     if (typeof callback !== "function") {
       console.log("call back is not a function!");
       return;
@@ -124,9 +118,8 @@ function Tree(array) {
 
     const dequeued = queue[0];
     queue.shift();
-    traverse.shift();
 
-    dequeued.value = callback(dequeued.value);
+    callback(dequeued);
 
     if (dequeued.left !== null) {
       const left = dequeued.left;
@@ -140,6 +133,7 @@ function Tree(array) {
     }
 
     levelOrder(callback, queue, traverse);
+    // console.log(traverse);
     /**
      * enqueue currentNode;
      * dequeue item
@@ -147,56 +141,78 @@ function Tree(array) {
      */
   }
 
-  function inOrder(
-    callback = (value) => {
-      console.log(value);
-    },
-    currentNode = node,
-    traverse = []
-  ) {
+  function inOrder(callback, currentNode = node, traverse = []) {
     if (typeof callback !== "function") return;
     if (currentNode === null) return;
 
     inOrder(callback, currentNode.left, traverse);
-    callback(currentNode.value);
+    callback(currentNode);
     traverse.push(currentNode.value);
     inOrder(callback, currentNode.right, traverse);
     // console.log(traverse);
   }
 
-  function preOrder(
-    callback = (value) => {
-      console.log(value);
-    },
-    currentNode = node,
-    traverse = []
-  ) {
+  function preOrder(callback, currentNode = node, traverse = []) {
     if (typeof callback !== "function") return;
     if (currentNode === null) return;
 
-    callback(currentNode.value);
+    callback(currentNode);
     traverse.push(currentNode.value);
     preOrder(callback, currentNode.left, traverse);
     preOrder(callback, currentNode.right, traverse);
     // console.log(traverse);
   }
 
-  function postOrder(
-    callback = (value) => {
-      console.log(value);
-    },
-    currentNode = node,
-    traverse = []
-  ) {
+  function postOrder(callback, currentNode = node, traverse = []) {
     if (typeof callback !== "function") return;
     if (currentNode === null) return;
 
     postOrder(callback, currentNode.left, traverse);
     postOrder(callback, currentNode.right, traverse);
-    callback(currentNode.value);
+    callback(currentNode);
     traverse.push(currentNode.value);
-    // console.log(traverse);
+    console.log(traverse);
   }
+
+  function height(value = node.value) {
+    let currentNode = node;
+    let leftHeight = 0;
+    let rightHeight = 0;
+    while (currentNode.value != value) {
+      if (currentNode.value > value) {
+        currentNode = currentNode.left;
+      } else {
+        currentNode = currentNode.right;
+      }
+    }
+
+    if (currentNode.left !== null) {
+      leftHeight = 1 + height(currentNode.left.value);
+    } else if (currentNode.left === null) {
+      leftHeight = 0;
+    }
+    if (currentNode.right !== null) {
+      rightHeight = 1 + height(currentNode.right.value);
+    } else if (currentNode.right === null) {
+      rightHeight = 0;
+    }
+    return leftHeight >= rightHeight ? leftHeight : rightHeight;
+  }
+
+  function depth(value = node.value) {
+    return height(node.value) - height(value);
+  }
+
+  function isBalanced() {
+    const Diff = height(node.left.value) - height(node.right.value);
+    const absDiff = Diff < 0 ? Diff * -1 : Diff;
+    console.log(absDiff);
+    if (absDiff <= 1) return true;
+
+    return false;
+  }
+
+  function rebalance() {}
 
   return {
     node,
@@ -207,6 +223,9 @@ function Tree(array) {
     inOrder,
     preOrder,
     postOrder,
+    height,
+    depth,
+    isBalanced,
   };
 }
 
@@ -223,7 +242,12 @@ prettyPrint(myTree.node);
 // console.log(myTree.find(10));
 // myTree.levelOrder();
 prettyPrint(myTree.node);
-myTree.postOrder();
+// myTree.levelOrder(() => {
+//   console.log("");
+// });
+console.log(myTree.height(4));
+console.log(myTree.depth(5));
+console.log(myTree.isBalanced());
 
 /**
 delete 30:
